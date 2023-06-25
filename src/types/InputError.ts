@@ -1,3 +1,4 @@
 export interface InputError {
-  message: string
+  field?: string,
+  message?: string
 }

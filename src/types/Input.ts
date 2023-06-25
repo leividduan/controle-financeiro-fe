@@ -6,6 +6,7 @@ export interface Input {
   name: string,
   placeholder: string,
   required: boolean,
+  disabled?: boolean
   error?: InputError,
   onChange?: (event: React.FormEvent<HTMLInputElement>) => void;
 }
