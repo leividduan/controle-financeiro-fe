@@ -2,6 +2,7 @@ import { InputError } from './InputError';
 
 export interface Input {
   type: string,
+  value: string,
   id: string,
   name: string,
   placeholder: string,

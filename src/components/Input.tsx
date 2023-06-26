@@ -1,14 +1,15 @@
 import { Input as InputType } from '../types/Input';
 
-function Input({type, id, name, placeholder, required, disabled, error, onChange} : InputType) {
+function Input({type, value, id, name, placeholder, required, disabled, error, onChange} : InputType) {
   const className = `bg-gray-50 focus:outline-primary-700 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 block w-full p-2.5 disabled:text-gray-400 ${error && 'border-red-500 placeholder-red-400 focus:ring-red-500 focus:border-red-500 focus:outline-red-700'}`;
 
   return (
     <>
       <input 
-        type={type} 
+        type={type}
+        value={value}
         name={name} 
-        id={id} 
+        id={id}
         placeholder={placeholder} 
         className={className} 
         required={required} 

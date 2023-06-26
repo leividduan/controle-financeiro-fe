@@ -8,6 +8,7 @@ import useErrors from '../hooks/useErrors';
 import isEmailValid from '../utils/isEmailValid';
 import UsersService from '../services/UsersService';
 import APIError from '../errors/APIError';
+import Title from '../components/Title';
 
 function Register() {
   const [name, setName] = useState('');
@@ -71,7 +72,7 @@ function Register() {
       const response  = await UsersService.createUser(user);
       if (response) {
         localStorage.removeItem('user');
-        localStorage.setItem('user', JSON.stringify({token: response.acess_token}));
+        localStorage.setItem('user', JSON.stringify(response));
       }
       setIsSubmitting(false);
       navigate('/');
@@ -88,9 +89,9 @@ function Register() {
 
   return (
     <LayoutLogin>
-      <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
-                  Realize o cadastro
-      </h1>
+      <Title>
+        Realize o cadastro
+      </Title>
       <form className="space-y-4 md:space-y-6" action="#" noValidate onSubmit={handleSubmit}>
         <div>
           <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900">Nome</label>

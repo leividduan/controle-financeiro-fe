@@ -1,4 +1,3 @@
-import { UserCreate, UserLogin } from '../types/User';
 import HttpClient from './utils/HttpClient';
 
 class UsersService {

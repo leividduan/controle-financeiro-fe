@@ -6,6 +6,7 @@ import useErrors from '../hooks/useErrors';
 import { UserLogin } from '../types/User';
 import UsersService from '../services/UsersService';
 import APIError from '../errors/APIError';
+import Title from '../components/Title';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -51,7 +52,7 @@ function Login() {
       const response  = await UsersService.loginUser(user);
       if (response) {
         localStorage.removeItem('user');
-        localStorage.setItem('user', JSON.stringify({token: response.acess_token}));
+        localStorage.setItem('user', JSON.stringify(response));
       }
       setIsSubmitting(false);
       navigate('/');
@@ -68,9 +69,9 @@ function Login() {
   }
   return (
     <LayoutLogin>
-      <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
-                  Faça o login na plataforma
-      </h1>
+      <Title>
+        Faça o login na plataforma
+      </Title>
       <form className="space-y-4 md:space-y-6" noValidate onSubmit={handleSubmit}>
         <div>
           <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">Seu email</label>

@@ -1,4 +1,5 @@
 import APIError from '../../errors/APIError';
+import getCurrentUser from '../../utils/getUser';
 
 class HttpClient {
   baseURL: string;
@@ -11,14 +12,14 @@ class HttpClient {
     this.token = user ? JSON.parse(user)?.token : '';
   }
 
-  get(path:string, options:RequestInit) {
+  get(path:string, options?:RequestInit) {
     return this.makeRequest(path, {
       method: 'GET',
       headers: options?.headers,
     });
   }
 
-  post(path:string, options:RequestInit) {
+  post(path:string, options?:RequestInit) {
     return this.makeRequest(path, {
       method: 'POST',
       body: options?.body,
@@ -26,7 +27,7 @@ class HttpClient {
     });
   }
 
-  put(path:string, options:RequestInit) {
+  put(path:string, options?:RequestInit) {
     return this.makeRequest(path, {
       method: 'PUT',
       body: options?.body,
@@ -34,27 +35,34 @@ class HttpClient {
     });
   }
 
-  delete(path:string, options:RequestInit) {
+  delete(path:string, options?:RequestInit) {
     return this.makeRequest(path, {
       method: 'DELETE',
       headers: options?.headers,
     });
   }
 
-  async makeRequest(path:string, options:RequestInit) {
+  async makeRequest(path:string, options?:RequestInit) {
     const headers = new Headers();
 
-    if (options.body) {
+    if (!this.baseURL) {
+      const user = getCurrentUser();
+      this.baseURL = user.token;
+    } else {
+      headers.append('Authorization', `Bearer ${this.baseURL}`);
+    }
+
+    if (options?.body) {
       headers.append('Content-Type', 'application/json');
     }
 
-    if (options.headers) {
+    if (options?.headers) {
       Object.entries(options.headers).forEach(([name, value]) => headers.append(name, value));
     }
 
     const response = await fetch(`${this.baseURL}${path}`, {
-      method: options.method,
-      body: JSON.stringify(options.body),
+      method: options?.method,
+      body: JSON.stringify(options?.body),
       headers,
     });
 
