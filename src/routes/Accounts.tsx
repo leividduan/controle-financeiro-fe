@@ -1,29 +1,16 @@
-import { useCallback, useEffect, useState } from 'react';
 import Title from '../components/Title';
-import { Account } from '../types/Account';
-import { Link, Outlet } from 'react-router-dom';
+import { Account, AccountList } from '../types/Account';
+import { Link, Outlet, useLoaderData } from 'react-router-dom';
 import AccountService from '../services/AccountService';
 
+export async function loader() {
+  const accounts = (await AccountService.get() as AccountList).data;
+  console.log(accounts);
+  return accounts;
+}
+
 function Accounts() {
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [orderBy, setOrderBy] = useState('asc');
-  const [isLoading, setIsLoading] = useState(false); 
-
-  const loadAccounts = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const accountsList = await AccountService.get();
-      setAccounts(accountsList.data);
-    } catch (error) {
-      setIsLoading(false);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [orderBy]);
-
-  useEffect(() => {
-    loadAccounts();
-  }, [loadAccounts]);
+  const accounts = useLoaderData() as Account[];
 
   return (
     <>

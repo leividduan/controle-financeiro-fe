@@ -1,3 +1,7 @@
+export interface AccountList {
+  data: Account[]
+}
+
 export interface Account extends AccountCreate{
   id: number,
 }

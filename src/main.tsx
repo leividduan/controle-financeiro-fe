@@ -10,11 +10,10 @@ import './index.css';
 import App from './routes/App';
 import Login from './routes/Login';
 import Register from './routes/Register';
-import Accounts from './routes/Accounts';
+import Accounts, { loader as accountsLoader } from './routes/Accounts';
 import Categories from './routes/Categories';
 import Transactions from './routes/Transactions';
 import Home from './routes/Home';
-import Modal from './components/Modal';
 import AccountDelete from './routes/AccountDelete';
 import AccountSave from './routes/AccountSave';
 
@@ -30,6 +29,7 @@ const router = createBrowserRouter([
       {
         path: 'accounts',
         element: <Accounts />,
+        loader: accountsLoader,
         children: [
           {
             path: 'new',
