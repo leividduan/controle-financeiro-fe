@@ -5,7 +5,6 @@ import AccountService from '../services/AccountService';
 
 export async function loader() {
   const accounts = (await AccountService.get() as AccountList).data;
-  console.log(accounts);
   return accounts;
 }
 
