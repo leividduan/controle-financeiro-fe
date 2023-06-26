@@ -15,7 +15,7 @@ function Header() {
       to: '/categories'
     },
     {
-      text: 'transações',
+      text: 'movimentações',
       to: '/transactions'
     },
   ];

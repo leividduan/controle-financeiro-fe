@@ -9,5 +9,7 @@ export interface Input {
   required: boolean,
   disabled?: boolean
   error?: InputError,
+  step?: string,
+  min?: string,
   onChange?: (event: React.FormEvent<HTMLInputElement>) => void;
 }

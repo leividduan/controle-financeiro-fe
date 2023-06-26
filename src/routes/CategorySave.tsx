@@ -22,7 +22,7 @@ function CategorySave({isEdit}:CategorySaveProp) {
   const params = useParams();
   const navigate = useNavigate();
 
-  const isFormValid = name && errors.length === 0;
+  const isFormValid = name && description && type && errors.length === 0;
 
   function handleNameChange(event:React.FormEvent<HTMLInputElement>) {
     if (!event.currentTarget.value) {
@@ -97,7 +97,7 @@ function CategorySave({isEdit}:CategorySaveProp) {
   
   if (isEdit) {
     useEffect(() =>{
-      async function loadAccount() {
+      async function loadCategory() {
         try {
           const id = parseInt(params.categoryId ?? '0');
           const category:Category = await CategoryService.getById(id);
@@ -108,7 +108,7 @@ function CategorySave({isEdit}:CategorySaveProp) {
           console.log(error);
         }
       }
-      loadAccount();
+      loadCategory();
       setIsLoading(false);
     },[]);
   }
@@ -118,7 +118,7 @@ function CategorySave({isEdit}:CategorySaveProp) {
     <Modal title={isEdit ? 'Editar categoria' : 'Criar categoria'} confirmLabel="Salvar" cancelLabel="Fechar" formFor="categoryForm">
       <form id="categoryForm" className="space-y-4" noValidate onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="type" className="block mb-2 text-sm font-medium text-gray-900">Nome</label>
+          <label htmlFor="type" className="block mb-2 text-sm font-medium text-gray-900">Tipo</label>
           <select
             className="bg-gray-50 focus:outline-primary-700 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 block w-full p-2.5 disabled:text-gray-400"
             name="type" 

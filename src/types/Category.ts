@@ -9,7 +9,7 @@ export interface Category extends CategoryCreate{
 export interface CategoryCreate {
   name: string,
   description: string,
-  type: string,
+  type: string
   is_active: boolean,
   id_user: number
 }

@@ -26,19 +26,21 @@ function Categories() {
         <div className="w-full p-4 bg-white border border-gray-200 rounded-lg shadow">
           <div className="flow-root">
             <ul role="list" className="divide-y divide-gray-200 dark:divide-gray-700">
-              {categories?.map((account) => {
+              {categories?.map((category) => {
                 return (
-                  <li className="py-3 sm:py-4" key={account.id}>
+                  <li className="py-3 sm:py-4" key={category.id}>
                     <div className="flex items-center space-x-4">
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">
-                          {account.name}
+                          {category.name}
+                          {category.type === 'EXPENSE' ? <small className="ml-3 text-red-700">despesa</small> : <small className="ml-3 text-green-700">receita</small>}
+                          
                         </p>
                       </div>
-                      <Link to={`/categories/${account.id}/edit`} className="block py-2 pl-3 pr-4 rounded md:border-0 md:p-0 text-primary-500 md:hover:text-primary-900 md:hover:bg-transparent">
+                      <Link to={`/categories/${category.id}/edit`} className="block py-2 pl-3 pr-4 rounded md:border-0 md:p-0 text-primary-500 md:hover:text-primary-900 md:hover:bg-transparent">
                         editar
                       </Link>
-                      <Link to={`/categories/${account.id}/delete`} className="block py-2 pl-3 pr-4 rounded md:border-0 md:p-0 text-primary-500 md:hover:text-red-900 md:hover:bg-transparent">
+                      <Link to={`/categories/${category.id}/delete`} className="block py-2 pl-3 pr-4 rounded md:border-0 md:p-0 text-primary-500 md:hover:text-red-900 md:hover:bg-transparent">
                         excluir
                       </Link>
                     </div>

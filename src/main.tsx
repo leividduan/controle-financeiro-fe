@@ -12,12 +12,14 @@ import Login from './routes/Login';
 import Register from './routes/Register';
 import Accounts, { loader as accountsLoader } from './routes/Accounts';
 import Categories, { loader as categoriesLoader }  from './routes/Categories';
-import Transactions from './routes/Transactions';
+import Transactions, { loader as transactionsLoader } from './routes/Transactions';
 import Home from './routes/Home';
 import AccountDelete from './routes/AccountDelete';
 import AccountSave from './routes/AccountSave';
 import CategorySave from './routes/CategorySave';
 import CategoryDelete from './routes/CategoryDelete';
+import TransactionSave from './routes/TransactionSave';
+import TransactionDelete from './routes/TransactionDelete';
 
 const router = createBrowserRouter([
   {
@@ -68,7 +70,22 @@ const router = createBrowserRouter([
       },
       {
         path: 'transactions',
-        element: <Transactions />
+        element: <Transactions />,
+        loader: transactionsLoader,
+        children: [
+          {
+            path: 'new',
+            element: <TransactionSave isEdit={false} />
+          },
+          {
+            path: ':transactionId/edit',
+            element: <TransactionSave isEdit={true} />
+          },
+          {
+            path: ':transactionId/delete',
+            element: <TransactionDelete />
+          },
+        ],
       },
     ],
   },
