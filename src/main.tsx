@@ -14,12 +14,12 @@ import Accounts, { loader as accountsLoader } from './routes/Accounts';
 import Categories, { loader as categoriesLoader }  from './routes/Categories';
 import Transactions, { loader as transactionsLoader } from './routes/Transactions';
 import Home from './routes/Home';
-import AccountDelete from './routes/AccountDelete';
-import AccountSave from './routes/AccountSave';
-import CategorySave from './routes/CategorySave';
-import CategoryDelete from './routes/CategoryDelete';
-import TransactionSave from './routes/TransactionSave';
-import TransactionDelete from './routes/TransactionDelete';
+import AccountDelete, { action as accountDeleteAction } from './routes/AccountDelete';
+import AccountSave, { action as accountAction, loader as accountLoader } from './routes/AccountSave';
+import CategorySave, { action as categoryAction, loader as categoryLoader } from './routes/CategorySave';
+import CategoryDelete, { action as categoryDeleteAction }  from './routes/CategoryDelete';
+import TransactionSave, { action as transactionAction, loader as transactionLoader } from './routes/TransactionSave';
+import TransactionDelete, { action as transactionDeleteAction } from './routes/TransactionDelete';
 
 const router = createBrowserRouter([
   {
@@ -37,14 +37,19 @@ const router = createBrowserRouter([
         children: [
           {
             path: 'new',
+            action: accountAction,
             element: <AccountSave isEdit={false} />
           },
           {
             path: ':accountId/edit',
+            action: accountAction,
+            loader: accountLoader,
             element: <AccountSave isEdit={true} />
           },
           {
             path: ':accountId/delete',
+            action: accountDeleteAction,
+            loader: accountLoader,
             element: <AccountDelete />
           },
         ],
@@ -56,14 +61,20 @@ const router = createBrowserRouter([
         children: [
           {
             path: 'new',
+            action: categoryAction,
+            loader: categoryLoader,
             element: <CategorySave isEdit={false} />
           },
           {
             path: ':categoryId/edit',
+            action: categoryAction,
+            loader: categoryLoader,
             element: <CategorySave isEdit={true} />
           },
           {
             path: ':categoryId/delete',
+            action: categoryDeleteAction,
+            loader: categoryLoader,
             element: <CategoryDelete />
           },
         ],
@@ -75,14 +86,20 @@ const router = createBrowserRouter([
         children: [
           {
             path: 'new',
+            action: transactionAction,
+            loader: transactionLoader,
             element: <TransactionSave isEdit={false} />
           },
           {
             path: ':transactionId/edit',
+            action: transactionAction,
+            loader: transactionLoader,
             element: <TransactionSave isEdit={true} />
           },
           {
             path: ':transactionId/delete',
+            action: transactionDeleteAction,
+            loader: transactionLoader,
             element: <TransactionDelete />
           },
         ],

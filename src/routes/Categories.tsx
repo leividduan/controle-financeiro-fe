@@ -33,7 +33,7 @@ function Categories() {
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">
                           {category.name}
-                          {category.type === 'EXPENSE' ? <small className="ml-3 text-red-700">despesa</small> : <small className="ml-3 text-green-700">receita</small>}
+                          {category.type === 'expense' ? <small className="ml-3 text-red-700">despesa</small> : <small className="ml-3 text-green-700">receita</small>}
                           
                         </p>
                       </div>

@@ -1,44 +1,31 @@
-import { useEffect, useState } from 'react';
 import Modal from '../components/Modal';
 import { Category } from '../types/Category';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Form, redirect, useLoaderData } from 'react-router-dom';
 import CategoryService from '../services/CategoryService';
+import APIError from '../errors/APIError';
 
-function CategoryDelete() {
-  const [category, setCategory] = useState<Category | null>(null);
-  const params = useParams();
-  const navigate = useNavigate();
-
-  useEffect(() =>{
-    async function loadCategory() {
-      try {
-        const id = parseInt(params.categoryId ?? '0');
-        const category:Category = await CategoryService.getById(id);
-        setCategory(category);
-      } catch (error) {
-        console.log(error);
-      }
+export async function action({ params }:any) {
+  try {
+    const id = parseInt(params.categoryId ?? '0');
+    if (id) {
+      await CategoryService.delete(id);
     }
-    loadCategory();
-  },[]);
-
-  async function handleOnClickConfirm() {
-    try {
-      if (!category) {
-        return;
-      }
-
-      await CategoryService.delete(category.id);
-      setCategory(category);
-      navigate('/categories');
-    } catch (error) {
+    return redirect('/categories');
+  } catch (error) {
+    if(error instanceof APIError){
       console.log(error);
     }
   }
+}
+
+function CategoryDelete() {
+  const category = useLoaderData() as Category;
 
   return (
-    <Modal title="Excluir conta" confirmLabel="Excluir" cancelLabel="Cancelar" confirmFn={handleOnClickConfirm}>
-      <h1>Você realmente deseja excluir a categoria <span className="font-bold">&quot;{category?.name}&quot;</span>?</h1>
+    <Modal title="Excluir conta" confirmLabel="Excluir" cancelLabel="Cancelar" formFor="deleteAccount">
+      <Form id="deleteAccount" noValidate method="post">
+        <h1>Você realmente deseja excluir a categoria <span className="font-bold">&quot;{category?.name}&quot;</span>?</h1>
+      </Form>
     </Modal>
   );
 }

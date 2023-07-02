@@ -1,44 +1,31 @@
-import { useEffect, useState } from 'react';
 import Modal from '../components/Modal';
 import { Account } from '../types/Account';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Form, redirect, useLoaderData, useNavigate } from 'react-router-dom';
 import AccountService from '../services/AccountService';
+import APIError from '../errors/APIError';
 
-function AccountDelete() {
-  const [account, setAccount] = useState<Account | null>(null);
-  const params = useParams();
-  const navigate = useNavigate();
-
-  useEffect(() =>{
-    async function loadAccount() {
-      try {
-        const id = parseInt(params.accountId ?? '0');
-        const account:Account = await AccountService.getById(id);
-        setAccount(account);
-      } catch (error) {
-        console.log(error);
-      }
+export async function action({ params }:any) {
+  try {
+    const id = parseInt(params.accountId ?? '0');
+    if (id) {
+      await AccountService.delete(id);
     }
-    loadAccount();
-  },[]);
-
-  async function handleOnClickConfirm() {
-    try {
-      if (!account) {
-        return;
-      }
-
-      await AccountService.delete(account.id);
-      setAccount(account);
-      navigate('/accounts');
-    } catch (error) {
+    return redirect('/accounts');
+  } catch (error) {
+    if(error instanceof APIError){
       console.log(error);
     }
   }
+}
+
+function AccountDelete() {
+  const account = useLoaderData() as Account;
 
   return (
-    <Modal title="Excluir conta" confirmLabel="Excluir" cancelLabel="Cancelar" confirmFn={handleOnClickConfirm}>
-      <h1>Você realmente deseja excluir a conta <span className="font-bold">&quot;{account?.name}&quot;</span>?</h1>
+    <Modal title="Excluir conta" confirmLabel="Excluir" cancelLabel="Cancelar" formFor="deleteAccount">
+      <Form id="deleteAccount" noValidate method="post">
+        <h1>Você realmente deseja excluir a conta <span className="font-bold">&quot;{account?.name}&quot;</span>?</h1>
+      </Form>
     </Modal>
   );
 }

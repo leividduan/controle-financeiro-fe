@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Modal from '../components/Modal';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Form, redirect, useLoaderData, useNavigate, useParams } from 'react-router-dom';
 import Input from '../components/Input';
 import APIError from '../errors/APIError';
 import useErrors from '../hooks/useErrors';
@@ -8,19 +8,58 @@ import getCurrentUser from '../utils/getUser';
 import { Category, CategoryCreate } from '../types/Category';
 import CategoryService from '../services/CategoryService';
 
+export async function loader({params}:any) {
+  try {
+    const id = parseInt(params.categoryId ?? '0');
+    if(id) {
+      const category:Category = await CategoryService.getById(id);
+      return category;
+    }
+    return null;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function action({ params, request }:any) {
+  try {
+    const user = getCurrentUser();
+    const formData = await request.formData();
+
+    const category: CategoryCreate = {
+      name: formData.get('name'),
+      description: formData.get('description'),
+      type: formData.get('type'),
+      is_active: true,
+      id_user: user.id
+    };
+
+    const id = parseInt(params.categoryId ?? '0');
+    if (id) {
+      await CategoryService.editCategory(category, id);
+    } else {
+      await CategoryService.createCategory(category);
+    }
+    return redirect('/categories');
+
+  } catch (error) {
+    if(error instanceof APIError){
+      console.log(error);
+    }
+  }
+}
+
 interface CategorySaveProp {
   isEdit: boolean
 }
 
 function CategorySave({isEdit}:CategorySaveProp) {
+  const category = useLoaderData() as Category;
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [type, setType] = useState('INCOME');
   const [isLoading, setIsLoading] = useState(isEdit);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { setError, removeError, getErrorMessageByFieldName, errors } = useErrors();
-  const params = useParams();
-  const navigate = useNavigate();
 
   const isFormValid = name && description && type && errors.length === 0;
 
@@ -58,65 +97,19 @@ function CategorySave({isEdit}:CategorySaveProp) {
     setType(event.currentTarget.value);
   }
 
-  async function handleSubmit(event:React.SyntheticEvent<HTMLFormElement>) {
-    try {
-      if(!isFormValid) {
-        return;
-      }
-
-      setIsSubmitting(true);
-      event.preventDefault();
-      const user = getCurrentUser();
-   
-      const category: CategoryCreate = {
-        name,
-        description,
-        type,
-        is_active: true,
-        id_user: user.id
-      };
-
-      if (isEdit) {
-        const id = parseInt(params.categoryId ?? '0');
-        await CategoryService.editCategory(category, id);
-      } else {
-        await CategoryService.createCategory(category);
-      }
-      navigate('/categories');
-      setIsSubmitting(false);
-      
-    } catch (err) {
-      if(err instanceof APIError){
-        console.log(err);
-        
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
-  
   if (isEdit) {
     useEffect(() =>{
-      async function loadCategory() {
-        try {
-          const id = parseInt(params.categoryId ?? '0');
-          const category:Category = await CategoryService.getById(id);
-          setName(category.name);
-          setDescription(category.description);
-          setType(category.type);
-        } catch (error) {
-          console.log(error);
-        }
-      }
-      loadCategory();
+      setName(category.name);
+      setDescription(category.description);
+      setType(category.type);
       setIsLoading(false);
     },[]);
   }
 
 
   return (
-    <Modal title={isEdit ? 'Editar categoria' : 'Criar categoria'} confirmLabel="Salvar" cancelLabel="Fechar" formFor="categoryForm">
-      <form id="categoryForm" className="space-y-4" noValidate onSubmit={handleSubmit}>
+    <Modal title={isEdit ? 'Editar categoria' : 'Criar categoria'} confirmLabel="Salvar" cancelLabel="Fechar" formFor="categoryForm" cancelTo="/categories" disableConfirmBtn={!isFormValid}>
+      <Form id="categoryForm" className="space-y-4" noValidate method="post">
         <div>
           <label htmlFor="type" className="block mb-2 text-sm font-medium text-gray-900">Tipo</label>
           <select
@@ -127,7 +120,7 @@ function CategorySave({isEdit}:CategorySaveProp) {
             required
             value={type}
             onChange={handleTypeChange} 
-            disabled={isLoading && !isSubmitting}
+            disabled={isLoading}
           >
             <option value="INCOME">Receita</option>
             <option value="EXPENSE">Despesa</option>
@@ -136,7 +129,7 @@ function CategorySave({isEdit}:CategorySaveProp) {
         <div>
           <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900">Nome</label>
           <Input 
-            type="name" 
+            type="text" 
             name="name" 
             id="name" 
             placeholder="Ex: Supermercado ou Cuidados pessoais" 
@@ -144,13 +137,13 @@ function CategorySave({isEdit}:CategorySaveProp) {
             value={name}
             onChange={handleNameChange} 
             error={getErrorMessageByFieldName('name')}
-            disabled={isLoading && !isSubmitting}
+            disabled={isLoading}
           />
         </div>
         <div>
           <label htmlFor="description" className="block mb-2 text-sm font-medium text-gray-900">Descrição</label>
           <Input 
-            type="description" 
+            type="text" 
             name="description" 
             id="description" 
             placeholder="Ex: Despesa criada para gastos com mercado em geral." 
@@ -158,10 +151,10 @@ function CategorySave({isEdit}:CategorySaveProp) {
             value={description}
             onChange={handleDescriptionChange} 
             error={getErrorMessageByFieldName('description')}
-            disabled={isLoading && !isSubmitting}
+            disabled={isLoading}
           />
         </div>
-      </form>
+      </Form>
     </Modal>
   );
 }

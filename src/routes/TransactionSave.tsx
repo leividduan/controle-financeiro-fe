@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import Modal from '../components/Modal';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Form, redirect, useLoaderData } from 'react-router-dom';
 import Input from '../components/Input';
 import APIError from '../errors/APIError';
 import useErrors from '../hooks/useErrors';
-import getCurrentUser from '../utils/getUser';
 import { Transaction, TransactionCreate } from '../types/Transaction';
 import TransactionService from '../services/TransactionService';
 import CategoryService from '../services/CategoryService';
@@ -12,11 +11,62 @@ import { Category } from '../types/Category';
 import { Account } from '../types/Account';
 import AccountService from '../services/AccountService';
 
+export async function loader({params}:any) {
+  try {
+    let transaction: Transaction | null = null;
+    const id = parseInt(params.transactionId ?? '0');
+    if (id) {
+      transaction = await TransactionService.getById(id);
+    }
+
+    const categoriesList = (await CategoryService.get()).data;
+    const accountsList = (await AccountService.get()).data;
+
+    return { transaction, categoriesList, accountsList };
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function action({ params, request }:any) {
+  try {
+    const formData = await request.formData();
+
+    const transaction: TransactionCreate = {
+      title: formData.get('title'),
+      description: formData.get('description'),
+      value: formData.get('amount'),
+      id_account: formData.get('account'),
+      id_category: formData.get('category'),
+    };
+
+    const id = parseInt(params.transactionId ?? '0');
+    if (id) {
+      await TransactionService.editTransaction(transaction, id);
+    } else {
+      await TransactionService.createTransaction(transaction);
+    }
+
+    return redirect('/transactions');
+  } catch (error) {
+    if(error instanceof APIError){
+      console.log(error);
+    }
+  }
+}
+
+export interface LoaderTransaction {
+  transaction: Transaction,
+  categoriesList: Category[],
+  accountsList: Account[]
+}
+
 interface TransactionSaveProp {
   isEdit: boolean
 }
 
 function TransactionsSave({isEdit}:TransactionSaveProp) {
+  const { transaction, categoriesList, accountsList } = useLoaderData() as LoaderTransaction;
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState(0);
@@ -25,28 +75,13 @@ function TransactionsSave({isEdit}:TransactionSaveProp) {
   const [account, setAccount] = useState(0);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [isLoading, setIsLoading] = useState(isEdit);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { setError, removeError, getErrorMessageByFieldName, errors } = useErrors();
-  const params = useParams();
-  const navigate = useNavigate();
 
   const isFormValid = title && errors.length === 0;
 
-  useEffect(() =>{
-    async function loadDependencies() {
-      try {
-        const categoriesList = (await CategoryService.get()).data;
-        console.log(categoriesList);
-        
-        setCategories(categoriesList);
-
-        const accountsList = (await AccountService.get()).data;
-        setAccounts(accountsList);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    loadDependencies();
+  useEffect(() => {
+    setCategories(categoriesList);
+    setAccounts(accountsList);
   },[]);
 
   function handleNameChange(event:React.FormEvent<HTMLInputElement>) {
@@ -102,68 +137,22 @@ function TransactionsSave({isEdit}:TransactionSaveProp) {
 
     setCategory(parseInt(event.currentTarget.value));
   }
-
-  async function handleSubmit(event:React.SyntheticEvent<HTMLFormElement>) {
-    try {
-      if(!isFormValid) {
-        return;
-      }
-
-      setIsSubmitting(true);
-      event.preventDefault();
-      const user = getCurrentUser();
-      
-      const transaction: TransactionCreate = {
-        title,
-        description,
-        value: amount,
-        id_account: account,
-        id_category: category
-      };
-
-      if (isEdit) {
-        const id = parseInt(params.transactionId ?? '0');
-        await TransactionService.editTransaction(transaction, id);
-      } else {
-        await TransactionService.createTransaction(transaction);
-      }
-      navigate('/transactions');
-      setIsSubmitting(false);
-      
-    } catch (err) {
-      if(err instanceof APIError){
-        console.log(err);
-        
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
   
   if (isEdit) {
     useEffect(() =>{
-      async function loadTransaction() {
-        try {
-          const id = parseInt(params.transactionId ?? '0');
-          const transaction:Transaction = await TransactionService.getById(id);
-          setTitle(transaction.title);
-          setDescription(transaction.description);
-          setAmount(transaction.value);
-          setCategory(transaction.id_category);
-          setAccount(transaction.id_account);
-        } catch (error) {
-          console.log(error);
-        }
-      }
-      loadTransaction();
+      setTitle(transaction.title);
+      setDescription(transaction.description);
+      setAmount(transaction.value);
+      setCategory(transaction.id_category);
+      setAccount(transaction.id_account);
       setIsLoading(false);
     },[]);
   }
 
 
   return (
-    <Modal title={isEdit ? 'Editar movimentação' : 'Criar movimentação'} confirmLabel="Salvar" cancelLabel="Fechar" formFor="transactionForm">
-      <form id="transactionForm" className="space-y-4" noValidate onSubmit={handleSubmit}>
+    <Modal title={isEdit ? 'Editar movimentação' : 'Criar movimentação'} confirmLabel="Salvar" cancelLabel="Fechar" formFor="transactionForm" cancelTo="/transactions" disableConfirmBtn={!isFormValid}>
+      <Form id="transactionForm" className="space-y-4" noValidate method="post">
         <div>
           <label htmlFor="account" className="block mb-2 text-sm font-medium text-gray-900">Conta</label>
           <select
@@ -173,7 +162,7 @@ function TransactionsSave({isEdit}:TransactionSaveProp) {
             required
             value={account}
             onChange={handleAccountChange} 
-            disabled={isLoading && !isSubmitting}
+            disabled={isLoading}
           >
             <option value="">Selecione</option>
             {accounts.map((account) => {
@@ -190,7 +179,7 @@ function TransactionsSave({isEdit}:TransactionSaveProp) {
             required
             value={category}
             onChange={handleCategoryChange} 
-            disabled={isLoading && !isSubmitting}
+            disabled={isLoading}
           >
             <option value="">Selecione</option>
             {categories.map((category) => {
@@ -201,7 +190,7 @@ function TransactionsSave({isEdit}:TransactionSaveProp) {
         <div>
           <label htmlFor="title" className="block mb-2 text-sm font-medium text-gray-900">Nome</label>
           <Input 
-            type="title" 
+            type="text" 
             name="title" 
             id="title" 
             placeholder="Ex: Supermercado ou Cuidados pessoais" 
@@ -209,13 +198,13 @@ function TransactionsSave({isEdit}:TransactionSaveProp) {
             value={title}
             onChange={handleNameChange} 
             error={getErrorMessageByFieldName('title')}
-            disabled={isLoading && !isSubmitting}
+            disabled={isLoading}
           />
         </div>
         <div>
           <label htmlFor="description" className="block mb-2 text-sm font-medium text-gray-900">Descrição</label>
           <Input 
-            type="description" 
+            type="text" 
             name="description" 
             id="description" 
             placeholder="Ex: Despesa criada para gastos com mercado em geral." 
@@ -223,7 +212,7 @@ function TransactionsSave({isEdit}:TransactionSaveProp) {
             value={description}
             onChange={handleDescriptionChange} 
             error={getErrorMessageByFieldName('description')}
-            disabled={isLoading && !isSubmitting}
+            disabled={isLoading}
           />
         </div>
         <div>
@@ -239,10 +228,10 @@ function TransactionsSave({isEdit}:TransactionSaveProp) {
             value={amount.toString()}
             onChange={handleAmountChange} 
             error={getErrorMessageByFieldName('amount')}
-            disabled={isLoading && !isSubmitting}
+            disabled={isLoading}
           />
         </div>
-      </form>
+      </Form>
     </Modal>
   );
 }
