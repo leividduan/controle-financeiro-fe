@@ -1,10 +1,10 @@
 import Modal from '../components/Modal';
-import { Form, redirect, useLoaderData } from 'react-router-dom';
+import { ActionFunctionArgs, Form, redirect, useLoaderData } from 'react-router-dom';
 import TransactionService from '../services/TransactionService';
 import APIError from '../errors/APIError';
 import { LoaderTransaction } from './TransactionSave';
 
-export async function action({ params }:any) {
+export async function action({ params }:ActionFunctionArgs) {
   try {
     const id = parseInt(params.transactionId ?? '0');
     if (id) {

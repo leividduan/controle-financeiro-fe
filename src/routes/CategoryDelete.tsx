@@ -1,10 +1,10 @@
 import Modal from '../components/Modal';
 import { Category } from '../types/Category';
-import { Form, redirect, useLoaderData } from 'react-router-dom';
+import { ActionFunctionArgs, Form, redirect, useLoaderData } from 'react-router-dom';
 import CategoryService from '../services/CategoryService';
 import APIError from '../errors/APIError';
 
-export async function action({ params }:any) {
+export async function action({ params }:ActionFunctionArgs) {
   try {
     const id = parseInt(params.categoryId ?? '0');
     if (id) {

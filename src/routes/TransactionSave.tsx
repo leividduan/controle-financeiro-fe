@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Modal from '../components/Modal';
-import { Form, redirect, useLoaderData } from 'react-router-dom';
+import { ActionFunctionArgs, Form, LoaderFunctionArgs, redirect, useLoaderData } from 'react-router-dom';
 import Input from '../components/Input';
 import APIError from '../errors/APIError';
 import useErrors from '../hooks/useErrors';
@@ -11,7 +11,7 @@ import { Category } from '../types/Category';
 import { Account } from '../types/Account';
 import AccountService from '../services/AccountService';
 
-export async function loader({params}:any) {
+export async function loader({params}:LoaderFunctionArgs) {
   try {
     let transaction: Transaction | null = null;
     const id = parseInt(params.transactionId ?? '0');
@@ -28,17 +28,9 @@ export async function loader({params}:any) {
   }
 }
 
-export async function action({ params, request }:any) {
+export async function action({ params, request }:ActionFunctionArgs) {
   try {
-    const formData = await request.formData();
-
-    const transaction: TransactionCreate = {
-      title: formData.get('title'),
-      description: formData.get('description'),
-      value: formData.get('amount'),
-      id_account: formData.get('account'),
-      id_category: formData.get('category'),
-    };
+    const transaction = Object.fromEntries(await request.formData()) as unknown as TransactionCreate;
 
     const id = parseInt(params.transactionId ?? '0');
     if (id) {
@@ -157,7 +149,7 @@ function TransactionsSave({isEdit}:TransactionSaveProp) {
           <label htmlFor="account" className="block mb-2 text-sm font-medium text-gray-900">Conta</label>
           <select
             className="bg-gray-50 focus:outline-primary-700 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 block w-full p-2.5 disabled:text-gray-400"
-            name="account" 
+            name="id_account" 
             id="account" 
             required
             value={account}
@@ -174,7 +166,7 @@ function TransactionsSave({isEdit}:TransactionSaveProp) {
           <label htmlFor="category" className="block mb-2 text-sm font-medium text-gray-900">Categoria</label>
           <select
             className="bg-gray-50 focus:outline-primary-700 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 block w-full p-2.5 disabled:text-gray-400"
-            name="category" 
+            name="id_category" 
             id="category" 
             required
             value={category}
@@ -221,7 +213,7 @@ function TransactionsSave({isEdit}:TransactionSaveProp) {
             type="number"
             min="1"
             step="any"
-            name="amount" 
+            name="value" 
             id="amount" 
             placeholder="Ex: Despesa criada para gastos com mercado em geral." 
             required

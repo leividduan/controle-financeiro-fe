@@ -28,7 +28,7 @@ function Categories() {
             <ul role="list" className="divide-y divide-gray-200 dark:divide-gray-700">
               {categories?.map((category) => {
                 return (
-                  <li className="py-3 sm:py-4" key={category.id}>
+                  <li className="py-2" key={category.id}>
                     <div className="flex items-center space-x-4">
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">

@@ -28,7 +28,7 @@ function Transactions() {
             <ul role="list" className="divide-y divide-gray-200 dark:divide-gray-700">
               {transactions?.map((transaction) => {
                 return (
-                  <li className="py-3 sm:py-4" key={transaction.id}>
+                  <li className="py-1" key={transaction.id}>
                     <div className="flex items-center space-x-4">
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">

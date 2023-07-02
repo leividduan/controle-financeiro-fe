@@ -1,10 +1,10 @@
 import Modal from '../components/Modal';
 import { Account } from '../types/Account';
-import { Form, redirect, useLoaderData, useNavigate } from 'react-router-dom';
+import { ActionFunctionArgs, Form, redirect, useLoaderData } from 'react-router-dom';
 import AccountService from '../services/AccountService';
 import APIError from '../errors/APIError';
 
-export async function action({ params }:any) {
+export async function action({ params }:ActionFunctionArgs) {
   try {
     const id = parseInt(params.accountId ?? '0');
     if (id) {

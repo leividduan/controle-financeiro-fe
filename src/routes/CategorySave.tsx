@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Modal from '../components/Modal';
-import { Form, redirect, useLoaderData, useNavigate, useParams } from 'react-router-dom';
+import { ActionFunctionArgs, Form, LoaderFunctionArgs, redirect, useLoaderData } from 'react-router-dom';
 import Input from '../components/Input';
 import APIError from '../errors/APIError';
 import useErrors from '../hooks/useErrors';
@@ -8,7 +8,7 @@ import getCurrentUser from '../utils/getUser';
 import { Category, CategoryCreate } from '../types/Category';
 import CategoryService from '../services/CategoryService';
 
-export async function loader({params}:any) {
+export async function loader({params}:LoaderFunctionArgs) {
   try {
     const id = parseInt(params.categoryId ?? '0');
     if(id) {
@@ -21,18 +21,11 @@ export async function loader({params}:any) {
   }
 }
 
-export async function action({ params, request }:any) {
+export async function action({ params, request }:ActionFunctionArgs) {
   try {
     const user = getCurrentUser();
-    const formData = await request.formData();
-
-    const category: CategoryCreate = {
-      name: formData.get('name'),
-      description: formData.get('description'),
-      type: formData.get('type'),
-      is_active: true,
-      id_user: user.id
-    };
+    let category = Object.fromEntries(await request.formData()) as unknown as CategoryCreate;
+    category = {...category, is_active: true, id_user: user.id};
 
     const id = parseInt(params.categoryId ?? '0');
     if (id) {

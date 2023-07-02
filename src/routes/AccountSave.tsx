@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Modal from '../components/Modal';
-import { Form, redirect, useLoaderData } from 'react-router-dom';
+import { ActionFunctionArgs, Form, LoaderFunctionArgs, redirect, useLoaderData } from 'react-router-dom';
 import Input from '../components/Input';
 import useErrors from '../hooks/useErrors';
 import AccountService from '../services/AccountService';
@@ -8,7 +8,7 @@ import { Account, AccountCreate } from '../types/Account';
 import getCurrentUser from '../utils/getUser';
 import APIError from '../errors/APIError';
 
-export async function loader({params}:any) {
+export async function loader({params}:LoaderFunctionArgs) {
   try {
     const id = parseInt(params.accountId ?? '0');
     if (id) {
@@ -21,16 +21,11 @@ export async function loader({params}:any) {
   }
 }
 
-export async function action({ params, request }:any) {
+export async function action({ params, request }:ActionFunctionArgs) {
   try {
     const user = getCurrentUser();
-    const formData = await request.formData();
-
-    const account: AccountCreate = {
-      name: formData.get('name'),
-      is_active: true,
-      id_user: user.id
-    };
+    let account = Object.fromEntries(await request.formData()) as unknown as AccountCreate;
+    account = {...account, is_active: true, id_user: user.id};
   
     const id = parseInt(params.accountId ?? '0');
     if (id) {
