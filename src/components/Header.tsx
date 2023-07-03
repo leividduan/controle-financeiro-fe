@@ -18,6 +18,14 @@ function Header() {
       text: 'movimentações',
       to: '/transactions'
     },
+    {
+      text: 'metas',
+      to: '/goals'
+    },
+    {
+      text: 'relatórios',
+      to: '/report'
+    },
   ];
   const location = useLocation();
   return (

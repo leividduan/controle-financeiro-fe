@@ -20,12 +20,25 @@ import CategorySave, { action as categoryAction, loader as categoryLoader } from
 import CategoryDelete, { action as categoryDeleteAction }  from './routes/CategoryDelete';
 import TransactionSave, { action as transactionAction, loader as transactionLoader } from './routes/TransactionSave';
 import TransactionDelete, { action as transactionDeleteAction } from './routes/TransactionDelete';
+import WorkingProgress from './routes/WorkingProgress';
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <App />,
     children: [
+      {
+        path: '/',
+        element: <Home />
+      },
+      {
+        path: '/goals',
+        element: <WorkingProgress />
+      },
+      {
+        path: '/report',
+        element: <WorkingProgress />
+      },
       {
         path: '/',
         element: <Home />
